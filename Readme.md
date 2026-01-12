@@ -55,3 +55,24 @@ Save them in artifacts/
 Log everything
 
 Handle errors properly
+
+<!--  -------------------data_tranformer-------------------------- -->
+🔹 What is data_transformation.py doing? (Big picture)
+
+👉 This file prepares raw data for ML models.
+
+It:
+
+Separates numerical and categorical columns
+
+Handles missing values
+
+Scales numerical features
+
+Encodes categorical features
+
+Combines everything using ColumnTransformer
+
+Returns a preprocessing object
+
+This object is later used in model training & prediction.
