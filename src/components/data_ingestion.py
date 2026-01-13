@@ -8,9 +8,7 @@ from sklearn.model_selection import train_test_split
 from src.exception import CustomException
 from src.logger import logging
 from src.components.data_transformation import DataTransformation
-from src.components.data_transformation import DataTransformationConfig
-from src.components.model_trainer import ModelTrainerConfig
-from src.components.model_trainer import  ModelTrainer
+from src.components.model_trainer import ModelTrainer
 
 
 @dataclass
@@ -25,49 +23,33 @@ class DataIngestion:
         self.ingestion_config = DataIngestionConfig()
 
     def initiate_data_ingestion(self):
-        logging.info("Entered the data ingestion component")
+        logging.info("Entered Data Ingestion component")
 
         try:
             # ✅ Read dataset
             df = pd.read_csv(os.path.join("notebook", "data", "stud.csv"))
             logging.info("Dataset read successfully")
 
-            # ✅ Create artifacts folder
-            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)
+            # ✅ Create artifacts directory
+            os.makedirs("artifacts", exist_ok=True)
 
             # ✅ Save raw data
-            df.to_csv(
-                self.ingestion_config.raw_data_path,
-                index=False,
-                header=True
-            )
-            logging.info("Raw data saved")
+            df.to_csv(self.ingestion_config.raw_data_path, index=False)
 
             # ✅ Train-test split
             train_set, test_set = train_test_split(
-                df,
-                test_size=0.2,
-                random_state=42
+                df, test_size=0.2, random_state=42
             )
 
             # ✅ Save train & test data
-            train_set.to_csv(
-                self.ingestion_config.train_data_path,
-                index=False,
-                header=True
-            )
+            train_set.to_csv(self.ingestion_config.train_data_path, index=False)
+            test_set.to_csv(self.ingestion_config.test_data_path, index=False)
 
-            test_set.to_csv(
-                self.ingestion_config.test_data_path,
-                index=False,
-                header=True
-            )
-
-            logging.info("Train-test split completed")
+            logging.info("Data ingestion completed successfully")
 
             return (
                 self.ingestion_config.train_data_path,
-                self.ingestion_config.test_data_path
+                self.ingestion_config.test_data_path,
             )
 
         except Exception as e:
@@ -76,12 +58,12 @@ class DataIngestion:
 
 if __name__ == "__main__":
     obj = DataIngestion()
-    train_data_path, test_data_path = obj.initiate_data_ingestion()
+    train_path, test_path = obj.initiate_data_ingestion()
 
     data_transformation = DataTransformation()
-    train_arr,test_arr,_=data_transformation.initiate_data_transformation(
-        train_data_path,
-        test_data_path
+    train_arr, test_arr = data_transformation.initiate_data_transformation(
+        train_path, test_path
     )
-    modeltrainer=ModelTrainer()
-    print(modeltrainer.initiate_model_trainer(train_arr,test_arr))
+
+    model_trainer = ModelTrainer()
+    print("R2 Score:", model_trainer.initiate_model_trainer(train_arr, test_arr))
